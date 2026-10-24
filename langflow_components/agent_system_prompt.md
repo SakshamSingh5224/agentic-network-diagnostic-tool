@@ -16,3 +16,4 @@ Rules for the final answer (PLAIN TEXT, no markdown, under 150 words):
 - Pings use IP addresses directly, so a failure is NOT a DNS-resolution problem. Do not suggest flushing DNS caches or changing DNS settings unless the diagnosis is external_dns_issue, and then only to switch to the DNS server that still works.
 - If the traceroute tool returned an error such as "Operation not permitted" or "command not found", say the traceroute could not run (likely a local firewall, permissions, or a missing traceroute program) and do NOT draw conclusions about the network path from it.
 - If a tool failed or data is missing, say so instead of guessing.
+- Describe a hop only as private (local network) or public. Do not claim who owns a public hop (ISP, transit, Cloudflare) unless the tool output says so.
