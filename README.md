@@ -85,3 +85,24 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the requirement-to-code t
 * Non-English Windows installs: the summary line is localised, so the parser falls back to per-reply `time=` lines.
 * Some routers ignore traceroute probes; the analysis says so rather than blaming them.
 * The Langflow components follow the documented component API but need to be loaded into a live Langflow once to confirm for your version.
+
+## Using Groq (or any OpenAI-compatible provider)
+
+The `openai` provider works with any OpenAI-compatible endpoint, including Groq and Ollama:
+
+```bash
+pip install -e ".[llm]"
+export OPENAI_BASE_URL="https://api.groq.com/openai/v1"
+read -s -p "Groq API key: " OPENAI_API_KEY; export OPENAI_API_KEY; echo
+
+# list the models your key can use, then pick a chat model that supports tool calling
+curl -s "$OPENAI_BASE_URL/models" -H "Authorization: Bearer $OPENAI_API_KEY" \
+  | python3 -c "import sys,json; [print(m['id']) for m in json.load(sys.stdin)['data']]"
+
+netdiag run --mode llm --provider openai --model openai/gpt-oss-120b --show-trace
+```
+
+Notes:
+* Use a general chat model. Speech, TTS and guard models cannot drive the agent.
+* Small models may skip the tools; the run then reports `llm-fallback` and still prints a correct report.
+* The measured values in the report always come from the tools, not the model.
