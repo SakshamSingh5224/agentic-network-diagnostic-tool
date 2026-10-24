@@ -55,7 +55,8 @@ class ToolRegistry:
         reasoning: str = "",
     ) -> Dict[str, Any]:
         """Run a tool. Never raises - errors come back as {"error": ...} (NFR2)."""
-        args = arguments or {}
+        # LLMs often send null for optional arguments; treat that as "not provided".
+        args = {k: v for k, v in (arguments or {}).items() if v is not None}
         tool = self._tools.get(name)
         tracer = tracer or CallTracer()
         with tracer.span(name, args, reasoning) as entry:
@@ -115,8 +116,8 @@ def build_default_registry(settings: Optional[Settings] = None) -> ToolRegistry:
             "type": "object",
             "properties": {
                 "gateway": {
-                    "type": "string",
-                    "description": "Optional gateway IP. Omit to auto-detect.",
+                    "type": ["string", "null"],
+                    "description": "Optional gateway IP. Omit or pass null to auto-detect.",
                 }
             },
         },

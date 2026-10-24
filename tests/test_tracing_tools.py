@@ -59,3 +59,14 @@ def test_default_registry_tools():
 
 def test_ping_endpoints_rejects_bad_gateway():
     assert "invalid gateway" in build_default_registry().execute("ping_endpoints", {"gateway": "-f"})["error"]
+
+
+def test_null_arguments_are_treated_as_missing():
+    reg = ToolRegistry()
+    reg.register(Tool("t", "d", {"type": "object"}, lambda **kw: kw))
+    assert reg.execute("t", {"a": None, "b": 1}) == {"b": 1}
+
+
+def test_gateway_schema_accepts_null():
+    spec = next(s for s in build_default_registry().specs() if s["name"] == "ping_endpoints")
+    assert "null" in spec["parameters"]["properties"]["gateway"]["type"]
