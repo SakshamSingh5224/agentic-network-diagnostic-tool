@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic-network-diagnostic-tool"
+version = "0.1.0"
+description = "Agentic network diagnostics: multi-endpoint ping, deterministic diagnosis, and an AI agent (Langflow-ready) that runs and interprets traceroutes."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = []  # core tool is pure standard library
+
+[project.optional-dependencies]
+llm = ["anthropic>=0.40", "openai>=1.40"]
+langflow = ["langflow"]
+dev = ["pytest>=7", "ruff>=0.5"]
+
+[project.scripts]
+netdiag = "netdiag.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501", "UP006", "UP007", "UP035", "UP045"]  # keep typing.Optional/List for py3.9
