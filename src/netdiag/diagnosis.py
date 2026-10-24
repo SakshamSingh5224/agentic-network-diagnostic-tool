@@ -11,6 +11,12 @@ from typing import Dict, List, Optional
 from netdiag.config import EXTERNAL_TARGETS, LABELS, Settings
 from netdiag.models import Diagnosis, PingResult, ProbeState, Severity, Status
 
+NO_ROUTE_HINTS = ("network is unreachable", "no route to host", "general failure", "transmit failed")
+
+
+def _no_route(p: Optional[PingResult]) -> bool:
+    return p is not None and any(h in (p.error or "").lower() for h in NO_ROUTE_HINTS)
+
 
 def classify_probe(p: Optional[PingResult], local: bool, s: Settings) -> ProbeState:
     if p is None or (p.received is None and p.loss_pct is None):
@@ -70,6 +76,15 @@ def diagnose(pings: Dict[str, PingResult], settings: Optional[Settings] = None) 
             Status.INCONCLUSIVE,
             Severity.UNKNOWN,
             "Ping could not be run, so the network state is unknown.",
+        )
+
+    # 0) The OS itself reports there is no route: not connected to any network
+    if g == ProbeState.UNKNOWN and all(_no_route(pings[k]) for k in ext_keys):
+        return make(
+            Status.LOCAL_NETWORK_ISSUE,
+            Severity.CRITICAL,
+            "This computer has no route to the internet - it does not appear to be connected to "
+            "any network (WiFi off or disconnected, no IP address, or cable unplugged).",
         )
 
     # 1) Local network: gateway down or unhealthy

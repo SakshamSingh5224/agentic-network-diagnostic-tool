@@ -154,6 +154,13 @@ def run_traceroute(
         m = _DEST.search(res.output)
         result.destination_ip = (m.group(1) or m.group(2)) if m else None
         result.hops = parse_traceroute(res.stdout)
+        if not result.hops:  # e.g. "connect: Network is unreachable" / "sendto: Operation not permitted"
+            lines = [
+                ln.strip() for ln in res.output.splitlines()
+                if ln.strip() and not ln.startswith(("traceroute to", "Tracing route"))
+            ]
+            if lines:
+                result.error = lines[0][:200]
         result.analysis = analyze_hops(result.hops, host, result.destination_ip, s)
         result.reached = bool(result.analysis.get("reached"))
         if res.timed_out:

@@ -75,3 +75,11 @@ def test_findings_list_every_probe():
 @pytest.mark.parametrize("status", list(Status))
 def test_status_values_are_json_friendly(status):
     assert isinstance(status.value, str)
+
+
+def test_no_route_means_not_connected_to_any_network():
+    err = lambda h: PingResult(  # noqa: E731
+        host=h, sent=3, received=0, loss_pct=100.0, error="ping: connect: Network is unreachable")
+    d = run(None, err(G), err(C))
+    assert d.status == Status.LOCAL_NETWORK_ISSUE and d.severity == Severity.CRITICAL
+    assert not d.needs_traceroute and "no route" in d.summary

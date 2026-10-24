@@ -30,7 +30,8 @@ REMEDIATION: Dict[str, List[str]] = {
         "If wired and still slow, restart the modem/router; if it persists, contact your ISP.",
     ],
     "inconclusive": [
-        "Make sure `ping` is installed and allowed to run, and that you are connected to a network.",
+        "Check that you are connected to a network (WiFi on, cable plugged in, hotspot enabled).",
+        "Make sure `ping` is installed and allowed to run.",
         "Re-run with --gateway <router-ip> if gateway auto-detection failed.",
     ],
 }
@@ -67,7 +68,7 @@ def render_report(
     for t in traces or []:
         lines += ["", f"Traceroute to {t.get('host')}:"]
         if t.get("error"):
-            lines.append(f"  - could not run: {t['error']}")
+            lines.append(f"  - traceroute failed: {t['error']}")
             continue
         lines += [f"  - {f}" for f in t.get("analysis", {}).get("findings", [])]
 

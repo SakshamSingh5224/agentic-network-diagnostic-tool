@@ -121,3 +121,9 @@ def test_run_traceroute_invalid_host_and_crash():
     def boom(cmd, t):
         raise RuntimeError("bad")
     assert "bad" in run_traceroute("8.8.8.8", runner=boom).error
+
+
+def test_no_hops_surfaces_the_real_error():
+    r = run_traceroute("8.8.8.8", runner=lambda c, t: CommandResult(
+        c, 1, "", "connect: Network is unreachable", False, None))
+    assert r.error == "connect: Network is unreachable" and not r.hops
